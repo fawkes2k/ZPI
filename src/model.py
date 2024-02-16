@@ -52,7 +52,7 @@ class Video(BaseModel):
     video_name: StrictStr = 'ZZDUMMY.MOV'
     section_id: UUID4 = UUID(int=0)
     video_hash: StrictStr = sha3_512(b'DUMMY').hexdigest()
-    length: timedelta | None
+    length: timedelta = timedelta(microseconds=1)
 
 
 class Attachment(BaseModel):
@@ -69,6 +69,9 @@ class VideoFeedback(BaseModel):
     video_id: UUID4 = UUID(int=0)
     author: UUID4 = UUID(int=0)
     comment: StrictStr = 'DUMMY'
+
+
+class ServiceError(RuntimeError): pass
 
 
 if __name__ == '__main__': raise NotImplementedError('Not implemented')
