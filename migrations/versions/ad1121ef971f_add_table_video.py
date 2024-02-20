@@ -18,10 +18,10 @@ def upgrade() -> None:
     op.execute("""CREATE TABLE IF NOT EXISTS video(
     video_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    video_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.MOV' CHECK(video_name ~ '^.{1,256}$'),
+    video_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.MOV' CHECK(video_name ~ '^.{1,255}$'),
     section_id UUID REFERENCES section(section_id) ON DELETE CASCADE NOT NULL,
     video_hash TEXT NOT NULL UNIQUE CHECK(video_hash ~ '^[0-9a-f]{128}$'),
-    length TIME NOT NULL CHECK(length > 0));""")
+    length INTERVAL NOT NULL);""")
 
 
 def downgrade() -> None:

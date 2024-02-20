@@ -2,7 +2,7 @@ from random import randbytes
 from hashlib import sha3_512
 from uuid import uuid4, UUID
 from datetime import datetime, timedelta, UTC
-from pydantic import AwareDatetime, BaseModel, EmailStr, PositiveFloat, PositiveInt, StrictBytes, StrictStr, UUID4
+from pydantic import AwareDatetime, BaseModel, EmailStr, PositiveInt, StrictBytes, StrictStr, UUID4
 
 
 class User(BaseModel):
@@ -20,7 +20,7 @@ class Course(BaseModel):
     creation_date: AwareDatetime | None = datetime.now(UTC)
     course_name: StrictStr = 'DUMMY'
     description: StrictStr = 'DUMMY'
-    price: PositiveFloat = 1000
+    price: StrictStr = '1000'
     image: StrictBytes = randbytes(256)
     author: UUID4 = UUID(int=0)
 
@@ -35,7 +35,7 @@ class CourseReview(BaseModel):
     creation_date: AwareDatetime | None = datetime.now(UTC)
     course_id: UUID4 = UUID(int=0)
     author: UUID4 = UUID(int=0)
-    rating: PositiveInt = 0
+    rating: PositiveInt = 1
     comment: StrictStr = 'DUMMY'
 
 

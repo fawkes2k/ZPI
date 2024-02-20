@@ -21,7 +21,7 @@ def upgrade() -> None:
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     video_id UUID REFERENCES video(video_id) ON DELETE CASCADE NOT NULL,
     author UUID REFERENCES bc_user(user_id) ON DELETE CASCADE NOT NULL,
-    comment TEXT NOT NULL UNIQUE DEFAULT 'DUMMY' CHECK(comment ~ '^.{1,2000}$'));""")
+    comment TEXT NOT NULL UNIQUE DEFAULT 'DUMMY');""")
 
 
 def downgrade() -> None:

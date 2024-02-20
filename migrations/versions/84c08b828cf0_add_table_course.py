@@ -20,8 +20,8 @@ def upgrade() -> None:
     course_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     course_name TEXT UNIQUE NOT NULL DEFAULT 'DUMMY' CHECK(course_name ~ '^.{1,100}$'),
-    description TEXT UNIQUE NOT NULL DEFAULT 'DUMMY' CHECK(description ~ '^.{1,1000}$'),
-    price MONEY NOT NULL DEFAULT 1000 CHECK(price > 0),
+    description TEXT UNIQUE NOT NULL DEFAULT 'DUMMY',
+    price MONEY NOT NULL DEFAULT 1000 CHECK(price > money(0)),
     image BYTEA UNIQUE NOT NULL CHECK(length(image) > 0),
     author UUID REFERENCES bc_user(user_id) ON DELETE CASCADE NOT NULL);""")
 

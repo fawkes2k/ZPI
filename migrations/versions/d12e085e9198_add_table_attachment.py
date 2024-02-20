@@ -19,7 +19,7 @@ def upgrade() -> None:
     op.execute("""CREATE TABLE IF NOT EXISTS attachment(
     attachment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    file_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.BIN' CHECK(file_name ~ '^.{1,256}$'),
+    file_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.BIN' CHECK(file_name ~ '^.{1,255}$'),
     file_hash TEXT NOT NULL UNIQUE CHECK(file_hash ~ '^[0-9a-f]{128}$'),
     video_id UUID REFERENCES video(video_id) ON DELETE CASCADE NOT NULL);""")
 
