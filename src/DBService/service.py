@@ -10,8 +10,10 @@ load_dotenv()
 URL = getenv('DATABASE_URL')
 SCHEMA = getenv('SCHEMA')
 
+
 class Logger:
     def __call__(self, record): debug(record)
+
 
 class DbService:
     pool = None
@@ -35,7 +37,7 @@ class DbService:
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def get_user(self, user_id: UUID4 = UUID(int=0), email: EmailStr = 'a@a.kp') -> User | None:
+    async def get_user(self, user_id: UUID4 = UUID(int=0), email: EmailStr = 'NULL') -> User | None:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:

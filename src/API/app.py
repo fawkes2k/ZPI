@@ -9,7 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = getenv("SECRET")
-app.permanent_session_lifetime = timedelta(days=100)
+app.permanent_session_lifetime = timedelta(days=30)
 app.register_blueprint(api, url_prefix='/api')
 
 if __name__ == "__main__": serve(app, host="0.0.0.0", port=5000)
