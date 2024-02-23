@@ -1,5 +1,5 @@
 from asyncio import run
-from service import DbService, User, Course, CourseReview, Section, Video, Attachment, VideoFeedback
+from service import DbService, User, Course, Review, Section, Video, Attachment, VideoFeedback
 
 
 async def test():
@@ -36,11 +36,11 @@ async def test():
     if not is_assigned: raise ValueError('3.4')
 
     rating = 5
-    review1 = await db.add_course_review(course_review=CourseReview(course_id=course3.course_id, author=user3.user_id))
-    reviews = await db.get_course_reviews(course_id=course3.course_id)
+    review1 = await db.add_review(review=Review(course_id=course3.course_id, author=user3.user_id))
+    reviews = await db.get_reviews(course_id=course3.course_id)
     if review1 not in reviews: raise ValueError('4.1')
-    review2 = await db.update_course_review(course_review=CourseReview(review_id=review1.review_id, rating=rating, course_id=course3.course_id, author=user3.user_id))
-    review3 = await db.get_course_review(review_id=review2.review_id)
+    review2 = await db.update_review(review=Review(review_id=review1.review_id, rating=rating, course_id=course3.course_id, author=user3.user_id))
+    review3 = await db.get_review(review_id=review2.review_id)
     if review2.rating != rating: raise ValueError('4.2')
     if review3.rating != rating: raise ValueError('4.3')
     if review2.rating != review3.rating: raise ValueError('4.4')
@@ -98,8 +98,8 @@ async def test():
     section5 = await db.get_section(section_id=section4.section_id)
     if section5 is not None: raise ValueError('9.4')
 
-    review4 = await db.delete_course_review(review_id=review3.review_id)
-    review5 = await db.get_course_review(review_id=review4.review_id)
+    review4 = await db.delete_review(review_id=review3.review_id)
+    review5 = await db.get_review(review_id=review4.review_id)
     if review5 is not None: raise ValueError('9.5')
     uc2 = await db.remove_user_from_course(user_id=user3.user_id, course_id=course3.course_id)
     user_courses2 = await db.get_user_courses(user_id=uc2.user_id)

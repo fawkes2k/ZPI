@@ -10,9 +10,17 @@ class User(BaseModel):
     creation_date: AwareDatetime | None = datetime.now(UTC)
     last_name: StrictStr = 'Doe'
     first_name: StrictStr = 'John'
-    email: EmailStr = 'ZPI@example.com'
+    email: EmailStr = 'test@example.com'
     hashed_password: StrictStr = sha3_512(b'DUMMY').hexdigest()
     salt: StrictBytes = randbytes(256)
+
+
+class ViewableUser(BaseModel):
+    user_id: UUID4 | None = uuid4()
+    creation_date: AwareDatetime | None = datetime.now(UTC)
+    last_name: StrictStr = 'Doe'
+    first_name: StrictStr = 'John'
+    email: EmailStr = 'test@example.com'
 
 
 class Course(BaseModel):
@@ -30,7 +38,7 @@ class UserCourses(BaseModel):
     course_id: UUID4 = UUID(int=0)
 
 
-class CourseReview(BaseModel):
+class Review(BaseModel):
     review_id: UUID4 | None = uuid4()
     creation_date: AwareDatetime | None = datetime.now(UTC)
     course_id: UUID4 = UUID(int=0)

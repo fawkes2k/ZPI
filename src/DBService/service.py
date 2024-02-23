@@ -1,4 +1,4 @@
-from src.model import datetime, EmailStr, ServiceError, User, UUID, UUID4, Course, UserCourses, CourseReview, Section, Video, Attachment, VideoFeedback
+from src.model import EmailStr, ServiceError, User, UUID, UUID4, Course, UserCourses, Review, Section, Video, Attachment, VideoFeedback
 from os import getenv
 from asyncpg import create_pool
 from logging import basicConfig, DEBUG, debug, info, error
@@ -30,7 +30,7 @@ class DbService:
                 error(NOT_INIT)
                 raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
-                with connection.query_logger(Logger()) as logger:
+                with connection.query_logger(Logger()):
                     row = await connection.fetch("SELECT * FROM bc_user ORDER BY $1 OFFSET $2 LIMIT $3", sort_by, offset, limit)
                     res = [User(**dict(r)) for r in row]
                     info('Searched for all users: {}'.format(res))
@@ -102,6 +102,17 @@ class DbService:
                     row = await connection.fetchrow("SELECT * FROM course WHERE course_id=$1", course_id)
                     res = Course(**dict(row)) if row else None
                     info('Searched for course {}'.format(res))
+                    return res
+        except Exception as e: error(extract_stack()); raise e
+
+    async def did_user_review_this_course(self, course_id: UUID4, user_id: UUID4) -> bool | None:
+        try:
+            if self.pool is None: raise ServiceError(NOT_INIT)
+            async with self.pool.acquire() as connection:
+                with connection.query_logger(Logger()):
+                    row = await connection.fetchrow("SELECT COUNT(*) = 1 FROM course WHERE course_id=$1 and author=$2", course_id, user_id)
+                    res = bool(row)
+                    info('"Did {} reviewed course {}" is {}'.format(user_id, course_id, res))
                     return res
         except Exception as e: error(extract_stack()); raise e
 
@@ -195,59 +206,59 @@ class DbService:
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def get_course_reviews(self, course_id: UUID4, sort_by='creation_date', offset=0, limit=20) -> list[CourseReview]:
+    async def get_reviews(self, course_id: UUID4, sort_by='creation_date', offset=0, limit=20) -> list[Review]:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetch("SELECT * FROM course_review WHERE course_id=$1 ORDER BY $2 OFFSET $3 LIMIT $4", course_id, sort_by, offset, limit)
-                    res = [CourseReview(**dict(r)) for r in row]
+                    res = [Review(**dict(r)) for r in row]
                     info('Searched for course reviews: {}'.format(res))
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def get_course_review(self, review_id: UUID4) -> CourseReview | None:
+    async def get_review(self, review_id: UUID4) -> Review | None:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetchrow("SELECT * FROM course_review WHERE review_id=$1", review_id)
-                    res = CourseReview(**dict(row)) if row else None
+                    res = Review(**dict(row)) if row else None
                     info('Searched for course review {}'.format(res))
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def add_course_review(self, course_review: CourseReview) -> CourseReview | None:
+    async def add_review(self, review: Review) -> Review | None:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetchrow("INSERT INTO course_review(course_id, author, rating, comment) VALUES ($1, $2, $3, $4) RETURNING *",
-                                                    course_review.course_id, course_review.author, course_review.rating, course_review.comment)
-                    res = CourseReview(**dict(row)) if row else None
+                                                    review.course_id, review.author, review.rating, review.comment)
+                    res = Review(**dict(row)) if row else None
                     info('Created course review {}'.format(res))
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def update_course_review(self, course_review: CourseReview) -> CourseReview | None:
+    async def update_review(self, review: Review) -> Review | None:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetchrow("UPDATE course_review SET course_id=$1, author=$2, rating=$3, comment=$4 WHERE review_id=$5 RETURNING *",
-                                                    course_review.course_id, course_review.author, course_review.rating, course_review.comment, course_review.review_id)
-                    res = CourseReview(**dict(row)) if row else None
+                                                    review.course_id, review.author, review.rating, review.comment, review.review_id)
+                    res = Review(**dict(row)) if row else None
                     info('Updated course review {}'.format(res))
                     return res
         except Exception as e: error(extract_stack()); raise e
 
-    async def delete_course_review(self, review_id: UUID4) -> CourseReview | None:
+    async def delete_review(self, review_id: UUID4) -> Review | None:
         try:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetchrow("DELETE FROM course_review WHERE review_id=$1 RETURNING *", review_id)
-                    res = CourseReview(**dict(row)) if row else None
+                    res = Review(**dict(row)) if row else None
                     info('Removed course review {}'.format(res))
                     return res
         except Exception as e: error(extract_stack()); raise e

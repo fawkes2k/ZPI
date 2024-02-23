@@ -1,0 +1,37 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
+
+html,
+body {
+    margin: 0;
+}
+
+.is-secondary-color {
+    background-color: #eef2fe;
+}
+.is-third-color {
+    background-color: #082a70;
+}
+.is-forth-color {
+    background-color: #fec208;
+}
+.is-fifth-color {
+    background-color: #f9fbfc;
+}
+
+.has-text-secondary {
+    color: #eef2fe;
+}
+.has-text-third {
+    color: #082a70;
+}
+.has-text-forth {
+    color: #fec208;
+}
+.has-border-x-short {
+    border-right: 2px solid #fec208;
+    border-left: 2px solid #fec208;
+}
+
+.mt--5{
+    margin-top:-1.5rem;
+}
