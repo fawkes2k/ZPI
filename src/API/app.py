@@ -18,4 +18,7 @@ app_async = WsgiToAsgi(app)
 @app.route('/<path:path>', methods=['GET'])
 async def main(path): return send_from_directory('../../html', path)
 
-if __name__ == "__main__": run(serve(app_async, Config()))
+if __name__ == "__main__":
+    config = Config()
+    config.bind = getenv('FLASK_IP')
+    run(serve(app_async, config))

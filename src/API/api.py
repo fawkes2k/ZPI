@@ -1,7 +1,7 @@
 from base64 import b64decode
 from flask import Blueprint, request, session, jsonify
 from src.DBService.service import DbService, getenv
-from src.model import randbytes, datetime, User, ViewableUser, Course, Review
+from src.model import randbytes, datetime, User, ViewableUser, Course, Review, VideoFeedback
 from hashlib import sha3_512
 
 api = Blueprint('api', __name__)
@@ -64,7 +64,7 @@ async def logout():
     await db.initialize()
     requester = await db.get_user(user_id=session.get('id'))
     if requester is None: return jsonify({'error': 'Not logged in'}), 401
-    session['id'] = None
+    session.pop('id', None)
     return jsonify({'message': 'Logged out'}), 200
 
 
@@ -113,7 +113,7 @@ async def delete_user(user_id):
         if user_to_delete is None: return jsonify({'error': 'User does not exist'}), 404
         if session.get('id') != user_to_delete.user_id: return jsonify({'error': 'Not authorized to delete users'}), 401
         deleted_user = await db.delete_user(user_id)
-        session['id'] = None
+        session.pop('id', None)
         viewable_user = ViewableUser(**deleted_user.model_dump()).model_dump_json()
         return viewable_user, 200
     except Exception as e: return jsonify({'error': str(e)}), 500
@@ -327,3 +327,243 @@ async def get_section(section_id):
         return section.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
 
+
+@api.route('/update_section', methods=['PUT'])
+async def update_section():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        section_to_update = await db.get_section(section_id=post.get("section_id"))
+        if section_to_update is None: return jsonify({'error': 'Section does not exist'}), 401
+        if session.get('id') != section_to_update.author: return jsonify({'error': 'Not authorized to update sections'}), 401
+        for element in post: section_to_update.__setattr__(element, post[element])
+        section_to_update = await db.update_section(section_to_update)
+        return section_to_update.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/delete_section/<uuid:section_id>', methods=['DELETE'])
+async def delete_section(section_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        section_to_delete = await db.get_section(section_id=section_id)
+        if section_to_delete is None: return jsonify({'error': 'Section does not exist'}), 404
+        if session.get('id') != section_to_delete.section_id: return jsonify({'error': 'Not authorized to delete section'}), 401
+        deleted_section = await db.delete_section(section_id)
+        return deleted_section.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_videos', methods=['GET'])
+async def get_videos():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get videos'}), 401
+        section = await db.get_section(section_id=post.get('section_id'))
+        if section is None: return jsonify({'error': 'Such section does not exist'}), 404
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get videos from this course'}), 403
+        videos = [video.model_dump_json() for video in await db.get_videos(**post)]
+        return videos, 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_video/<uuid:video_id>', methods=['GET'])
+async def get_video(video_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get a video'}), 401
+        video = await db.get_video(video_id=video_id)
+        if video is None: return jsonify({'error': 'Such video does not exist'}), 404
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get videos from this course'}), 403
+        return video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/update_video', methods=['PUT'])
+async def update_video():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        video_to_update = await db.get_video(video_id=post.get("video_id"))
+        if video_to_update is None: return jsonify({'error': 'Video does not exist'}), 401
+        if session.get('id') != video_to_update.author: return jsonify({'error': 'Not authorized to update videos'}), 401
+        for element in post: video_to_update.__setattr__(element, post[element])
+        video_to_update = await db.update_video(video_to_update)
+        return video_to_update.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/delete_video/<uuid:video_id>', methods=['DELETE'])
+async def delete_video(video_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        video_to_delete = await db.get_video(video_id=video_id)
+        if video_to_delete is None: return jsonify({'error': 'Video does not exist'}), 404
+        if session.get('id') != video_to_delete.video_id: return jsonify({'error': 'Not authorized to delete video'}), 401
+        deleted_video = await db.delete_video(video_id)
+        return deleted_video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_attachments', methods=['GET'])
+async def get_attachments():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get attachments'}), 401
+        video = await db.get_video(video_id=post.get('video_id'))
+        if video is None: return jsonify({'error': 'Such video does not exist'}), 404
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get attachments from this course'}), 403
+        videos = [video.model_dump_json() for video in await db.get_videos(**post)]
+        return videos, 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_attachment/<uuid:attachment_id>', methods=['GET'])
+async def get_attachment(attachment_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get an attachment'}), 401
+        attachment = await db.get_attachment(attachment_id=attachment_id)
+        if attachment is None: return jsonify({'error': 'Such attachment does not exist'}), 404
+        video = await db.get_video(video_id=attachment.video_id)
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get attachments from this course'}), 403
+        return video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/update_attachment', methods=['PUT'])
+async def update_attachment():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        attachment_to_update = await db.get_attachment(attachment_id=post.get("attachment_id"))
+        if attachment_to_update is None: return jsonify({'error': 'Attachment does not exist'}), 401
+        if session.get('id') != attachment_to_update.author: return jsonify({'error': 'Not authorized to update attachments'}), 401
+        for element in post: attachment_to_update.__setattr__(element, post[element])
+        attachment_to_update = await db.update_attachment(attachment_to_update)
+        return attachment_to_update.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/delete_attachment/<uuid:attachment_id>', methods=['DELETE'])
+async def delete_attachment(attachment_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        attachment_to_delete = await db.get_attachment(attachment_id=attachment_id)
+        if attachment_to_delete is None: return jsonify({'error': 'Attachment does not exist'}), 404
+        if session.get('id') != attachment_to_delete.attachment_id: return jsonify({'error': 'Not authorized to delete attachment'}), 401
+        deleted_attachment = await db.delete_attachment(attachment_id)
+        return deleted_attachment.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_feedbacks', methods=['GET'])
+async def get_feedbacks():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get feedbacks'}), 401
+        video = await db.get_video(video_id=post.get('video_id'))
+        if video is None: return jsonify({'error': 'Video does not exist'}), 404
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get feedbacks from this course'}), 403
+        videos = [video.model_dump_json() for video in await db.get_videos(**post)]
+        return videos, 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/get_feedback/<uuid:feedback_id>', methods=['GET'])
+async def get_feedback(feedback_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to get an feedback'}), 401
+        feedback = await db.get_feedback(feedback_id=feedback_id)
+        if feedback is None: return jsonify({'error': 'Such feedback does not exist'}), 404
+        video = await db.get_video(video_id=feedback.video_id)
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to get feedbacks from this course'}), 403
+        return video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/add_feedback', methods=['POST'])
+async def add_feedback():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to add reviews'}), 401
+        video = await db.get_course(post.get("video_id"))
+        if video is None: return jsonify({'error': 'Video does not exist'}), 404
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
+        if not is_added: return jsonify({'error': 'Not authorized to add feedbacks to this courses'}), 401
+        feedback = VideoFeedback(**post, author=requester.user_id)
+        added_feedback = await db.add_feedback(feedback)
+        return added_feedback.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/update_feedback', methods=['PUT'])
+async def update_feedback():
+    post = request.get_json()
+    try:
+        db = DbService()
+        await db.initialize()
+        feedback_to_update = await db.get_feedback(feedback_id=post.get("feedback_id"))
+        if feedback_to_update is None: return jsonify({'error': 'Feedback does not exist'}), 401
+        if session.get('id') != feedback_to_update.author: return jsonify({'error': 'Not authorized to update feedbacks'}), 401
+        for element in post: feedback_to_update.__setattr__(element, post[element])
+        feedback_to_update = await db.update_feedback(feedback_to_update)
+        return feedback_to_update.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/delete_feedback/<uuid:feedback_id>', methods=['DELETE'])
+async def delete_feedback(feedback_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        feedback_to_delete = await db.get_feedback(feedback_id=feedback_id)
+        if feedback_to_delete is None: return jsonify({'error': 'Feedback does not exist'}), 404
+        if session.get('id') != feedback_to_delete.feedback_id: return jsonify({'error': 'Not authorized to delete feedback'}), 401
+        deleted_feedback = await db.delete_feedback(feedback_id)
+        return deleted_feedback.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
