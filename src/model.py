@@ -69,6 +69,7 @@ class Attachment(BaseModel):
     file_name: StrictStr = 'ZZDUMMY.BIN'
     file_hash: StrictStr = sha3_512(b'DUMMY').hexdigest()
     video_id: UUID4 = UUID(int=0)
+    file_size: PositiveInt = 0
 
 
 class VideoFeedback(BaseModel):

@@ -1,7 +1,8 @@
+from asyncio.subprocess import create_subprocess_shell, PIPE
 from base64 import b64decode
 from flask import Blueprint, request, session, jsonify
 from src.DBService.service import DbService, getenv
-from src.model import randbytes, datetime, User, ViewableUser, Course, Review, VideoFeedback
+from src.model import randbytes, datetime, timedelta, User, ViewableUser, Course, Review, VideoFeedback, Video, Attachment
 from hashlib import sha3_512
 
 api = Blueprint('api', __name__)
@@ -391,6 +392,43 @@ async def get_video(video_id):
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 
+async def interactive_shell(command: str) -> tuple[bytes, bytes]:
+    process = await create_subprocess_shell(command, stdout=PIPE, stderr=PIPE, shell=True)
+    return await process.communicate()
+
+
+@api.route('/add_video/<uuid:section_id>', methods=['POST'])
+async def add_video(section_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        section = await db.get_section(section_id=section_id)
+        if section is None: return jsonify({'error': 'Section does not exist'}), 404
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to add videos'}), 401
+        course = await db.get_course(course_id=section.course_id)
+        if requester.user_id != course.author: return jsonify({'error': 'Not authorized to add videos to this course'}), 401
+        if 'file' not in request.files: return jsonify({'error': 'No videos uploaded'}), 400
+        file = request.files['file']
+        if file.filename == '': return jsonify({'error': 'Empty file submitted'}), 400
+        content = file.stream.read()
+        video_hash = sha3_512(content).hexdigest()
+        path = '{}/videos/{}'.format(getenv('UPLOAD_FOLDER'), video_hash)
+        file.save(path)
+        length, stderr = interactive_shell('ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 -sexagesimal {}'.format(path))
+        if stderr: return jsonify({'error': stderr}), 500
+        if length == b'N/A':
+            _, stderr = interactive_shell('rm {}'.format(path))
+            if stderr: return jsonify({'error': stderr}), 500
+            return jsonify({'error': 'This file is not a video'}), 400
+        length = datetime.strptime(length.decode(), '%H:%M:%S.%f')
+        proper_length = timedelta(hours=length.hour, minutes=length.minute, seconds=length.second, microseconds=length.microsecond)
+        video = Video(video_name=file.filename, section_id=section_id, video_hash=video_hash, length=proper_length)
+        added_video = await db.add_video(video)
+        return added_video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
 @api.route('/update_video', methods=['PUT'])
 async def update_video():
     post = request.get_json()
@@ -453,6 +491,31 @@ async def get_attachment(attachment_id):
         is_added = await db.is_user_assigned_to_course(user_id=requester.user_id, course_id=course.course_id)
         if not is_added: return jsonify({'error': 'Not authorized to get attachments from this course'}), 403
         return video.model_dump_json(), 200
+    except Exception as e: return jsonify({'error': str(e)}), 500
+
+
+@api.route('/add_attachment/<uuid:video_id>', methods=['POST'])
+async def add_attachment(video_id):
+    try:
+        db = DbService()
+        await db.initialize()
+        video = await db.get_video(video_id=video_id)
+        if video is None: return jsonify({'error': 'Video does not exist'}), 404
+        requester = await db.get_user(user_id=session.get('id'))
+        if requester is None: return jsonify({'error': 'Not authorized to add attachments'}), 401
+        section = await db.get_section(section_id=video.section_id)
+        course = await db.get_course(course_id=section.course_id)
+        if requester.user_id != course.author: return jsonify({'error': 'Not authorized to add videos to this course'}), 401
+        if 'file' not in request.files: return jsonify({'error': 'No files uploaded'}), 400
+        file = request.files['file']
+        if file.filename == '': return jsonify({'error': 'Empty file submitted'}), 400
+        content = file.stream.read()
+        size = len(content)
+        file_hash = sha3_512(content).hexdigest()
+        file.save('{}/attachments/{}'.format(getenv('UPLOAD_FOLDER'), file_hash))
+        attachment = Attachment(file_name=file.filename, file_hash=file_hash, video_id=video_id, file_size=size)
+        added_attachment = await db.add_attachment(attachment)
+        return added_attachment.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 

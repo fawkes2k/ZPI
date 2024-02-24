@@ -403,8 +403,8 @@ class DbService:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
-                    row = await connection.fetchrow("INSERT INTO attachment(file_name, file_hash, video_id) VALUES ($1, $2, $3) RETURNING *",
-                                                    attachment.file_name, attachment.file_hash, attachment.video_id)
+                    row = await connection.fetchrow("INSERT INTO attachment(file_name, file_hash, video_id, file_size) VALUES ($1, $2, $3, $4) RETURNING *",
+                                                    attachment.file_name, attachment.file_hash, attachment.video_id, attachment.file_size)
                     res = Attachment(**dict(row)) if row else None
                     info('Created attachment {}'.format(res))
                     return res
@@ -415,8 +415,8 @@ class DbService:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
-                    row = await connection.fetchrow("UPDATE attachment SET file_name=$1, file_hash=$2, video_id=$3 WHERE attachment_id=$4 RETURNING *",
-                                                    attachment.file_name, attachment.file_hash, attachment.video_id, attachment.attachment_id)
+                    row = await connection.fetchrow("UPDATE attachment SET file_name=$1, file_hash=$2, video_id=$3, file_size=$4 WHERE attachment_id=$4 RETURNING *",
+                                                    attachment.file_name, attachment.file_hash, attachment.video_id, attachment.attachment_id, attachment.file_size)
                     res = Attachment(**dict(row)) if row else None
                     info('Updated attachment {}'.format(res))
                     return res
