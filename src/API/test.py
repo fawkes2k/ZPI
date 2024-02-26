@@ -1,0 +1,41 @@
+from requests import delete, get, post, put
+API_URL = "http://localhost:8000/api/{}"
+
+
+def request(method, api: str, data: dict = None, cookie: str = None) -> tuple:
+    url = API_URL.format(api)
+    headers = {"Content-Type": "application/json"}
+    if cookie: headers["Cookie"] = cookie
+    response = method(url, headers=headers, json=data)
+    return response.json(), response.cookies
+
+
+def test():
+    default_get = {'sort_by': 'last_name', 'offset': 0, 'limit': 20}
+    err = "error"
+    health, _ = request(method=get, api="health")
+    if "uptime" not in health: raise Exception("1.1")
+    user1 = {"email": "ZPI@wsi.edu.pl", "last_name": "Kowalski", "first_name": "Jan", "password": "alamakota"}
+    user2, _ = request(method=post, api="add_user", data=user1)
+    if err in user2: raise Exception(user2[err])
+    response, cookie = request(method=post, api="login", data=user1)
+    proper_cookie = 'session={}; HttpOnly; Path=/'.format(cookie['session'])
+    if err in response: raise Exception(response[err])
+    users, _ = request(method=get, api="get_users", data=default_get, cookie=proper_cookie)
+    if len(users) == 0: raise Exception("No users")
+    if err in users: raise Exception(users[err])
+    user2["first_name"] = "Jane"
+    user3, _ = request(method=put, api="update_user", data=user2, cookie=proper_cookie)
+    if err in user3: raise Exception(response[err])
+    user4, _ = request(method=get, api="get_user/{}".format(user3["user_id"]), cookie=proper_cookie)
+    if err in user4: raise Exception(user4[err])
+
+    course1 = {'course_name': 'TEST', 'description': 'Lorem ipsum', 'price': '100', 'image': 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0RERERERCIvPjxwYXRoIGZpbGw9IiM5OTk5OTkiIGQ9Ik00Ni42OCAxMDYuNjZoNS4wMXEuNTQgMCAuODYuMy4zMi4zLjMyLjh2MkgzOS40OHYtMS4xMXEwLS4zMy4xNC0uNzEuMTQtLjM3LjQ1LS42Nmw1LjkzLTUuOTRxLjc0LS43NiAxLjMzLTEuNDUuNTgtLjY5Ljk3LTEuMzYuNC0uNjguNi0xLjM3LjIxLS43LjIxLTEuNDcgMC0uNy0uMi0xLjIzLS4yLS41NC0uNTctLjktLjM3LS4zNi0uODktLjU1LS41Mi0uMTgtMS4xNy0uMTgtLjU5IDAtMS4xLjE3LS41MS4xNy0uOS40Ny0uMzkuMzEtLjY2LjcxLS4yNy40MS0uNDEuODktLjIyLjYyLS41OS44My0uMzYuMi0xLjA1LjA5bC0xLjc2LS4zMXEuMjEtMS40Ljc5LTIuNDYuNTgtMS4wNiAxLjQ1LTEuNzd0MS45OS0xLjA3cTEuMTMtLjM2IDIuNDMtLjM2IDEuMzUgMCAyLjQ3LjR0MS45MiAxLjEzcS43OS43MyAxLjI0IDEuNzUuNDQgMS4wMy40NCAyLjI4IDAgMS4wOC0uMzEgMi0uMzIuOTItLjg1IDEuNzYtLjU0Ljg0LTEuMjUgMS42Mi0uNzIuNzgtMS41IDEuNTlsLTQuNCA0LjVxLjYzLS4xOSAxLjI2LS4yOS42My0uMSAxLjE5LS4xWk02OS4wOSAxMDBxMCAyLjU1LS41NCA0LjQzLS41NSAxLjg5LTEuNTEgMy4xMi0uOTcgMS4yMi0yLjI5IDEuODMtMS4zMS42LTIuODQuNi0xLjUyIDAtMi44My0uNi0xLjMtLjYxLTIuMjYtMS44My0uOTYtMS4yMy0xLjUtMy4xMi0uNTQtMS44OC0uNTQtNC40MyAwLTIuNTcuNTQtNC40NC41NC0xLjg4IDEuNS0zLjExdDIuMjYtMS44M3ExLjMxLS42IDIuODMtLjYgMS41MyAwIDIuODQuNiAxLjMyLjYgMi4yOSAxLjgzLjk2IDEuMjMgMS41MSAzLjExLjU0IDEuODcuNTQgNC40NFptLTMuNDQgMHEwLTIuMTItLjMxLTMuNTEtLjMxLTEuMzktLjgzLTIuMjEtLjUyLS44My0xLjE5LTEuMTYtLjY4LS4zMy0xLjQxLS4zMy0uNzEgMC0xLjM4LjMzLS42Ny4zMy0xLjE4IDEuMTYtLjUyLjgyLS44MiAyLjIxLS4zIDEuMzktLjMgMy41MXQuMyAzLjUxcS4zIDEuMzkuODIgMi4yMS41MS44MyAxLjE4IDEuMTYuNjcuMzMgMS4zOC4zMy43MyAwIDEuNDEtLjMzLjY3LS4zMyAxLjE5LTEuMTYuNTItLjgyLjgzLTIuMjEuMzEtMS4zOS4zMS0zLjUxWm0xOS4xIDBxMCAyLjU1LS41NCA0LjQzLS41NSAxLjg5LTEuNTEgMy4xMi0uOTcgMS4yMi0yLjI5IDEuODMtMS4zMS42LTIuODQuNi0xLjUyIDAtMi44My0uNi0xLjMtLjYxLTIuMjYtMS44My0uOTYtMS4yMy0xLjUtMy4xMi0uNTQtMS44OC0uNTQtNC40MyAwLTIuNTcuNTQtNC40NC41NC0xLjg4IDEuNS0zLjExdDIuMjYtMS44M3ExLjMxLS42IDIuODMtLjYgMS41MyAwIDIuODQuNiAxLjMyLjYgMi4yOSAxLjgzLjk2IDEuMjMgMS41MSAzLjExLjU0IDEuODcuNTQgNC40NFptLTMuNDQgMHEwLTIuMTItLjMxLTMuNTEtLjMxLTEuMzktLjgzLTIuMjEtLjUyLS44My0xLjE5LTEuMTYtLjY4LS4zMy0xLjQxLS4zMy0uNzEgMC0xLjM4LjMzLS42Ny4zMy0xLjE4IDEuMTYtLjUyLjgyLS44MiAyLjIxLS4zIDEuMzktLjMgMy41MXQuMyAzLjUxcS4zIDEuMzkuODIgMi4yMS41MS44MyAxLjE4IDEuMTYuNjcuMzMgMS4zOC4zMy43MyAwIDEuNDEtLjMzLjY3LS4zMyAxLjE5LTEuMTYuNTItLjgyLjgzLTIuMjEuMzEtMS4zOS4zMS0zLjUxWm0yNC44OCA1LjI5LTEuNzcgMS43NC00LjU3LTQuNTctNC42MiA0LjYtMS43Ny0xLjc0IDQuNjItNC42My00LjQtNC40IDEuNzUtMS43NiA0LjQgNC40IDQuMzgtNC4zNyAxLjc4IDEuNzUtNC4zOSA0LjM5IDQuNTkgNC41OVptMTYuMjYgMS4zN2g1cS41NCAwIC44Ni4zLjMyLjMuMzIuOHYyaC0xMy4zOXYtMS4xMXEwLS4zMy4xNC0uNzEuMTQtLjM3LjQ1LS42Nmw1LjkzLTUuOTRxLjc0LS43NiAxLjMzLTEuNDUuNTgtLjY5Ljk4LTEuMzYuMzktLjY4LjYtMS4zNy4yMS0uNy4yMS0xLjQ3IDAtLjctLjIxLTEuMjMtLjItLjU0LS41Ny0uOS0uMzctLjM2LS44OS0uNTUtLjUyLS4xOC0xLjE3LS4xOC0uNTkgMC0xLjEuMTctLjUxLjE3LS45LjQ3LS4zOS4zMS0uNjYuNzEtLjI3LjQxLS40Ljg5LS4yMy42Mi0uNi44My0uMzYuMi0xLjA1LjA5bC0xLjc2LS4zMXEuMjEtMS40Ljc5LTIuNDYuNTgtMS4wNiAxLjQ1LTEuNzd0Mi0xLjA3cTEuMTItLjM2IDIuNDItLjM2IDEuMzUgMCAyLjQ3LjR0MS45MiAxLjEzcS43OS43MyAxLjI0IDEuNzUuNDQgMS4wMy40NCAyLjI4IDAgMS4wOC0uMzEgMi0uMzIuOTItLjg1IDEuNzYtLjU0Ljg0LTEuMjUgMS42Mi0uNzIuNzgtMS41IDEuNTlsLTQuNCA0LjVxLjYzLS4xOSAxLjI2LS4yOS42My0uMSAxLjItLjFabTIyLjQxLTYuNjZxMCAyLjU1LS41NSA0LjQzLS41NSAxLjg5LTEuNTEgMy4xMi0uOTcgMS4yMi0yLjI4IDEuODMtMS4zMi42LTIuODUuNi0xLjUyIDAtMi44Mi0uNi0xLjMxLS42MS0yLjI3LTEuODMtLjk1LTEuMjMtMS40OS0zLjEyLS41NC0xLjg4LS41NC00LjQzIDAtMi41Ny41NC00LjQ0LjU0LTEuODggMS40OS0zLjExLjk2LTEuMjMgMi4yNy0xLjgzIDEuMy0uNiAyLjgyLS42IDEuNTMgMCAyLjg1LjYgMS4zMS42IDIuMjggMS44My45NiAxLjIzIDEuNTEgMy4xMS41NSAxLjg3LjU1IDQuNDRabS0zLjQ1IDBxMC0yLjEyLS4zMS0zLjUxLS4zMS0xLjM5LS44My0yLjIxLS41Mi0uODMtMS4xOS0xLjE2LS42OC0uMzMtMS40MS0uMzMtLjcxIDAtMS4zOC4zMy0uNjcuMzMtMS4xOCAxLjE2LS41MS44Mi0uODIgMi4yMS0uMyAxLjM5LS4zIDMuNTF0LjMgMy41MXEuMzEgMS4zOS44MiAyLjIxLjUxLjgzIDEuMTggMS4xNi42Ny4zMyAxLjM4LjMzLjczIDAgMS40MS0uMzMuNjctLjMzIDEuMTktMS4xNi41Mi0uODIuODMtMi4yMS4zMS0xLjM5LjMxLTMuNTFabTE5LjExIDBxMCAyLjU1LS41NSA0LjQzLS41NSAxLjg5LTEuNTEgMy4xMi0uOTcgMS4yMi0yLjI4IDEuODMtMS4zMi42LTIuODUuNi0xLjUyIDAtMi44Mi0uNi0xLjMxLS42MS0yLjI3LTEuODMtLjk1LTEuMjMtMS40OS0zLjEyLS41NC0xLjg4LS41NC00LjQzIDAtMi41Ny41NC00LjQ0LjU0LTEuODggMS40OS0zLjExLjk2LTEuMjMgMi4yNy0xLjgzIDEuMy0uNiAyLjgyLS42IDEuNTMgMCAyLjg1LjYgMS4zMS42IDIuMjggMS44My45NiAxLjIzIDEuNTEgMy4xMS41NSAxLjg3LjU1IDQuNDRabS0zLjQ1IDBxMC0yLjEyLS4zMS0zLjUxLS4zMS0xLjM5LS44My0yLjIxLS41Mi0uODMtMS4xOS0xLjE2LS42OC0uMzMtMS40MS0uMzMtLjcxIDAtMS4zOC4zMy0uNjcuMzMtMS4xOCAxLjE2LS41MS44Mi0uODIgMi4yMS0uMyAxLjM5LS4zIDMuNTF0LjMgMy41MXEuMzEgMS4zOS44MiAyLjIxLjUxLjgzIDEuMTggMS4xNi42Ny4zMyAxLjM4LjMzLjczIDAgMS40MS0uMzMuNjctLjMzIDEuMTktMS4xNi41Mi0uODIuODMtMi4yMS4zMS0xLjM5LjMxLTMuNTFaIi8+PC9zdmc+'}
+    course2, _ = request(post, api="add_course", data=course1, cookie=proper_cookie)
+    if err in course2: raise Exception(course2)
+
+    user5, _ = request(method=delete, api="delete_user/{}".format(user4["user_id"]), cookie=proper_cookie)
+    if err in user5: raise Exception(user5[err])
+
+
+if __name__ == "__main__": test()

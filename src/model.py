@@ -29,7 +29,7 @@ class Course(BaseModel):
     course_name: StrictStr = 'DUMMY'
     description: StrictStr = 'DUMMY'
     price: StrictStr = '1000'
-    image: StrictBytes = randbytes(256)
+    image: StrictStr = 'DUMMY'
     author: UUID4 = UUID(int=0)
 
 
@@ -69,7 +69,7 @@ class Attachment(BaseModel):
     file_name: StrictStr = 'ZZDUMMY.BIN'
     file_hash: StrictStr = sha3_512(b'DUMMY').hexdigest()
     video_id: UUID4 = UUID(int=0)
-    file_size: PositiveInt = 0
+    file_size: PositiveInt = 1024
 
 
 class VideoFeedback(BaseModel):

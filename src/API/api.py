@@ -4,6 +4,7 @@ from flask import Blueprint, request, session, jsonify
 from src.DBService.service import DbService, getenv
 from src.model import randbytes, datetime, timedelta, User, ViewableUser, Course, Review, VideoFeedback, Video, Attachment
 from hashlib import sha3_512
+from wand.image import Image
 
 api = Blueprint('api', __name__)
 started = datetime.now()
@@ -151,10 +152,15 @@ async def add_course():
     try:
         db = DbService()
         await db.initialize()
-        image = b64decode(post.get("image"))
+        image = b64decode(post.get("image").encode())
+        max_image_size_mb = int(getenv('MAX_IMAGE_SIZE_MB'))
+        if len(image) > max_image_size_mb * 1048576: return jsonify({'error': 'Maximum image size is {} MB'.format(max_image_size_mb)})
+        with Image(blob=image) as img:
+            if img.format not in ['AVIF', 'JPEG', 'PNG', 'SVG', 'TIFF', 'GIF']: return jsonify({'error': 'Image not in acceptable format (AVIF, JPEG, PNG, SVG, TIFF or GIF)'})
+            image = img.data_url()
         requester = await db.get_user(user_id=session.get('id'))
         if requester is None: return jsonify({'error': 'Not authorized to add courses'}), 401
-        course = Course(**post, image=image, author=requester.user_id)
+        course = Course(course_name=post.get('course_name'), description=post.get('description'), price=post.get('price'), image=image, author=requester.user_id)
         added_course = await db.add_course(course)
         return added_course.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
@@ -183,7 +189,14 @@ async def update_course():
         if course_to_update is None: return jsonify({'error': 'Course does not exist'}), 401
         if session.get('id') != course_to_update.author: return jsonify({'error': 'Not authorized to update courses'}), 401
         for element in post:
-            if element == "image": course_to_update.image = b64decode(post[element])
+            if element == "image":
+                image = b64decode(post[element])
+                max_image_size_mb = int(getenv('MAX_IMAGE_SIZE_MB'))
+                if len(image) > max_image_size_mb * 1048576: return jsonify({'error': 'Maximum image size is {} MB'.format(max_image_size_mb)})
+                with Image(blob=image) as img:
+                    if img.format not in ['AVIF', 'JPEG', 'PNG', 'SVG', 'TIFF', 'GIF']:
+                        return jsonify({'error': 'Image not in acceptable format (AVIF, JPEG, PNG, SVG, TIFF or GIF)'})
+                    course_to_update.image = img.data_url()
             else: course_to_update.__setattr__(element, post[element])
         updated_course = await db.update_course(course_to_update)
         return updated_course.model_dump_json(), 200

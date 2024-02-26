@@ -22,7 +22,7 @@ def upgrade() -> None:
     course_name TEXT UNIQUE NOT NULL DEFAULT 'DUMMY' CHECK(course_name ~ '^.{1,100}$'),
     description TEXT UNIQUE NOT NULL DEFAULT 'DUMMY',
     price MONEY NOT NULL DEFAULT 1000 CHECK(price >= money(0)),
-    image BYTEA NOT NULL CHECK(length(image) > 0),
+    image TEXT UNIQUE NOT NULL CHECK(length(image) > 0),
     author UUID REFERENCES bc_user(user_id) ON DELETE CASCADE NOT NULL);""")
 
 
