@@ -20,17 +20,17 @@ class DbService:
 
     async def initialize(self):
         basicConfig(filename='log.txt', encoding='utf-8', level=DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-        try: self.pool = await create_pool(URL, timeout=30, command_timeout=5, server_settings={'search_path': SCHEMA})
+        try: self.pool = await create_pool(URL, timeout=10, command_timeout=5, server_settings={'search_path': SCHEMA})
         except Exception as e:
             error(extract_stack())
             raise e
         info('connected to [{}]'.format(URL))
 
+    async def terminate(self): self.pool.terminate()
+
     async def get_users(self, sort_by='last_name', offset=0, limit=20) -> list[User]:
         try:
-            if self.pool is None:
-                error(NOT_INIT)
-                raise ServiceError(NOT_INIT)
+            if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
                     row = await connection.fetch('SELECT * FROM bc_user ORDER BY $1 OFFSET $2 LIMIT $3', sort_by, offset, limit)

@@ -16,7 +16,7 @@ async def test():
     if user3.email != email: raise ValueError('1.3')
     if user2.email != user3.email: raise ValueError('1.4')
 
-    image = b'a'
+    image = 'a'
     course1 = await db.add_course(course=Course(author=user3.user_id))
     courses = await db.get_courses()
     if course1 not in courses: raise ValueError('2.1')
