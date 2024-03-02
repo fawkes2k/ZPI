@@ -1,5 +1,4 @@
 from flask import Flask, send_from_directory, redirect
-from flask_cors import CORS
 from asgiref.wsgi import WsgiToAsgi
 from asyncio import run
 from hypercorn.config import Config
@@ -15,7 +14,6 @@ app.secret_key = getenv('SECRET')
 app.register_blueprint(api, url_prefix='/api')
 app_async = WsgiToAsgi(app)
 app.config['UPLOAD_FOLDER'] = getenv('UPLOAD_FOLDER')
-CORS(app)
 
 
 @app.route('/', methods=['GET'])
@@ -23,14 +21,15 @@ async def main(): return redirect('/index.html')
 
 
 @app.route('/<path:path>', methods=['GET'])
-async def get_path(path): return send_from_directory('../../html', path)
+async def get_path(path): return send_from_directory('../html', path)
 
 
-@app.route('/attachment/<name>')
-def get_video(name): return send_from_directory('{}/attachments/'.format(app.config['UPLOAD_FOLDER']), name)
+@app.route('/attachment/<string:name>')
+def get_attachment(name): return send_from_directory('{}/attachments/'.format(app.config['UPLOAD_FOLDER']), name)
 
 
-if __name__ == '__main__':
-    config = Config()
-    config.bind = getenv("API_IP")
-    run(serve(app_async, config))
+@app.route('/video/<string:name>')
+def get_video(name): return send_from_directory('{}/video/'.format(app.config['UPLOAD_FOLDER']), name)
+
+
+if __name__ == '__main__': run(serve(app_async, Config()))

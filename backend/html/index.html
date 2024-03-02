@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pl" class="has-navbar-fixed-top">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="src/main.css" />
+    <link rel="stylesheet" href="src/additional.css" />
+    <link rel="stylesheet" href="src/icons-iconify.css" />
+    <title>Strefa Kursów</title>
+  </head>
+  <body>
+    <nav
+      class="navbar is-secondary-color is-fixed-top"
+      role="navigation"
+      aria-label="main navigation"
+    >
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="./index.html">
+            <img
+              src="src/images/LOGO.svg"
+              width="284"
+              height="29"
+              class="logo-navbar"
+            />
+          </a>
+        </div>
+
+        <div id="navbar" class="navbar-menu">
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <div class="control has-icons-left">
+                <input class="input" type="text" placeholder="Wyszukaj" />
+                <span class="icon is-small is-left">
+                  <i class="material-symbols--search"></i>
+                </span>
+              </div>
+            </div>
+            <a class="navbar-item">
+              <span class="icon is-large">
+                <i class="game-icons--hamburger-menu"></i>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero is-third-color">
+      <div class="hero-body">
+        <div class="container">
+          <p class="title has-text-white">Moje kursy</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section is-small">
+      <div class="container">
+        Sortuj według
+        <br />
+        <select class="select is-secondary-color">
+          <option>Ostatnio dodane</option>
+          <option>Nazwa</option>
+          <option>Data</option>
+        </select>
+        <div class="control has-icons-left is-pulled-right">
+          <input class="input" type="text" placeholder="Wyszukaj moje kursy" />
+          <span class="icon is-small is-left">
+            <i class="material-symbols--search"></i>
+          </span>
+        </div>
+        <div class="columns mt-5">
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 40%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-40"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="lets-icons--check-fill-large is-secondary-color"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4 is-secondary-color">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-medium mr-1">
+                        <i class="lets-icons--check-fill is-third-color"></i>
+                      </span>
+                      <span>Ukończony</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-100"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 30%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-30"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="columns mt-5">
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 70%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-70"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 80%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-80"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="lets-icons--check-fill-large is-secondary-color"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4 is-secondary-color">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-medium mr-1">
+                        <i class="lets-icons--check-fill is-third-color"></i>
+                      </span>
+                      <span>Ukończony</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-100"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="columns mt-5">
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 10%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-10"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Zacznij kurs</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar"></div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="column">
+            <a href="./course.html">
+              <div class="box course-box">
+                <div
+                  class="header is-third-color is-flex is-justify-content-center is-align-items-center"
+                >
+                  <span class="icon is-super-large">
+                    <i
+                      class="ant-design--play-square-outlined has-text-white"
+                    ></i>
+                  </span>
+                </div>
+                <div class="pb-4">
+                  <div class="sub-header">
+                    <p class="is-size-5 has-text-weight-bold">Nazwa kursu</p>
+                    <span>Jan Kowalski</span>
+                    <span
+                      class="is-pulled-right is-flex is-justify-content-center is-align-items-center"
+                    >
+                      <span class="icon is-small mr-1">
+                        <i class="simple-line-icons--check is-forth-color"></i>
+                      </span>
+                      <span>Postęp 60%</span>
+                    </span>
+                  </div>
+                  <div class="complete-bar">
+                    <div class="fill-bar fill-bar-60"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <nav
+          class="pagination is-small is-centered"
+          role="navigation"
+          aria-label="pagination"
+        >
+          <ul class="pagination-list">
+            <li>
+              <a
+                class="pagination-link has-text-light"
+                aria-label="Goto previous page"
+              >
+                <
+              </a>
+            </li>
+            <li>
+              <a
+                class="pagination-link is-current"
+                href="./index.html"
+                aria-label="Page 1"
+                aria-current="page"
+              >
+                1
+              </a>
+            </li>
+            <li>
+              <a
+                class="pagination-link"
+                aria-label="Goto page 2"
+                href="./index.html"
+              >
+                2
+              </a>
+            </li>
+            <li>
+              <a
+                class="pagination-link"
+                aria-label="Goto page 3"
+                href="./index.html"
+              >
+                3
+              </a>
+            </li>
+            <li><span class="pagination-ellipsis">&hellip;</span></li>
+            <li>
+              <a
+                class="pagination-link"
+                aria-label="Goto page 7"
+                href="./index.html"
+              >
+                7
+              </a>
+            </li>
+            <li>
+              <a
+                class="pagination-link"
+                aria-label="Goto next page"
+                href="./index.html"
+              >
+                >
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+
+    <footer class="footer is-secondary-color">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-7 is-flex is-align-items-center">
+            <img src="src/images/LOGO_WSIZ.svg" width="100" />
+            <p class="has-text-third ml-6">
+              Wyższa Szkoła Informatyki i Zarządzania w Bielsku-Białej
+              <br />
+              ul. Legionów 81, 43-300 Bielsko-Biała
+              <br />
+              33 822 90 70, 506 49 53 35
+            </p>
+          </div>
+          <div class="column is-3">
+            <p class="has-text-third has-border-x-short pl-6">
+              Poniedziałek - nieczynne
+              <br />
+              Wtorek - Czwartek 8:00 - 16:00
+              <br />
+              Piątek - 12:00 - 20:00
+              <br />
+              Sobota - 08:00 - 16:00
+            </p>
+          </div>
+          <div class="column is-2 is-flex is-align-items-center">
+            <a class="mr-5">
+              <span class="icon">
+                <span class="icon is-large">
+                  <i class="ri--instagram-fill is-third-color"></i>
+                </span>
+              </span>
+            </a>
+            <a class="mr-5">
+              <span class="icon">
+                <span class="icon is-large">
+                  <i class="uil--facebook is-third-color"></i>
+                </span>
+              </span>
+            </a>
+            <a>
+              <span class="icon">
+                <span class="icon is-large">
+                  <i class="uil--linkedin is-third-color"></i>
+                </span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="/src/functions.js"></script>
+    <script src="/src/request.js"></script>
+    <script src="/src/main.js"></script>
+  </body>
+</html>

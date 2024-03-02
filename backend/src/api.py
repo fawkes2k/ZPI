@@ -1,8 +1,12 @@
 from asyncio.subprocess import create_subprocess_shell, PIPE
 from base64 import b64decode
+from os import getenv
+from random import randbytes
+
 from flask import Blueprint, request, session, jsonify
-from src.DBService.service import DbService, getenv
-from src.model import randbytes, datetime, timedelta, User, ViewableUser, Course, Review, VideoFeedback, Video, Attachment
+from datetime import datetime, timedelta
+from service import DbService
+from model import User, ViewableUser, Course, Review, VideoFeedback, Video, Attachment
 from hashlib import sha3_512
 from wand.image import Image
 
@@ -147,9 +151,6 @@ async def add_course():
         image = b64decode(post.get("image").encode())
         max_image_size_mb = int(getenv('MAX_IMAGE_SIZE_MB'))
         if len(image) > max_image_size_mb * 1048576: return jsonify({'error': 'Maximum image size is {} MB'.format(max_image_size_mb)})
-        with Image(blob=image) as img:
-            if img.format not in ['AVIF', 'JPEG', 'PNG', 'SVG', 'TIFF', 'GIF']: return jsonify({'error': 'Image not in acceptable format (AVIF, JPEG, PNG, SVG, TIFF or GIF)'})
-            image = img.data_url()
         requester = await api.db.get_user(user_id=session.get('id'))
         if requester is None: return jsonify({'error': 'Not authorized to add courses'}), 401
         course = Course(course_name=post.get('course_name'), description=post.get('description'), price=post.get('price'), image=image, author=requester.user_id)
@@ -181,10 +182,7 @@ async def update_course():
                 image = b64decode(post[element])
                 max_image_size_mb = int(getenv('MAX_IMAGE_SIZE_MB'))
                 if len(image) > max_image_size_mb * 1048576: return jsonify({'error': 'Maximum image size is {} MB'.format(max_image_size_mb)})
-                with Image(blob=image) as img:
-                    if img.format not in ['AVIF', 'JPEG', 'PNG', 'SVG', 'TIFF', 'GIF']:
-                        return jsonify({'error': 'Image not in acceptable format (AVIF, JPEG, PNG, SVG, TIFF or GIF)'})
-                    course_to_update.image = img.data_url()
+                course_to_update.image = image
             else: course_to_update.__setattr__(element, post[element])
         updated_course = await api.db.update_course(course_to_update)
         return updated_course.model_dump_json(), 200
@@ -364,11 +362,6 @@ async def get_video(video_id):
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 
-async def interactive_shell(command: str) -> tuple[bytes, bytes]:
-    process = await create_subprocess_shell(command, stdout=PIPE, stderr=PIPE, shell=True)
-    return await process.communicate()
-
-
 @api.route('/add_video/<uuid:section_id>', methods=['POST'])
 async def add_video(section_id):
     try:
@@ -383,17 +376,8 @@ async def add_video(section_id):
         if file.filename == '': return jsonify({'error': 'Empty file submitted'}), 400
         content = file.stream.read()
         video_hash = sha3_512(content).hexdigest()
-        path = '{}/videos/{}'.format(getenv('UPLOAD_FOLDER'), video_hash)
-        file.save(path)
-        length, stderr = interactive_shell('ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 -sexagesimal {}'.format(path))
-        if stderr: return jsonify({'error': stderr}), 500
-        if length == b'N/A':
-            _, stderr = interactive_shell('rm {}'.format(path))
-            if stderr: return jsonify({'error': stderr}), 500
-            return jsonify({'error': 'This file is not a video'}), 400
-        length = datetime.strptime(length.decode(), '%H:%M:%S.%f')
-        proper_length = timedelta(hours=length.hour, minutes=length.minute, seconds=length.second, microseconds=length.microsecond)
-        video = Video(video_name=file.filename, section_id=section_id, video_hash=video_hash, length=proper_length)
+        file.save('{}/videos/{}'.format(getenv('UPLOAD_FOLDER'), video_hash))
+        video = Video(video_name=file.filename, section_id=section_id, video_hash=video_hash)
         added_video = await api.db.add_video(video)
         return added_video.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500

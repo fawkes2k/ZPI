@@ -1,5 +1,7 @@
-from src.model import EmailStr, ServiceError, User, UUID, UUID4, Course, UserCourses, Review, Section, Video, Attachment, VideoFeedback
+from pydantic import EmailStr, UUID4
+from model import ServiceError, User, Course, UserCourses, Review, Section, Video, Attachment, VideoFeedback
 from os import getenv
+from uuid import UUID
 from asyncpg import create_pool
 from logging import basicConfig, DEBUG, debug, info, error
 from traceback import extract_stack
@@ -404,8 +406,8 @@ class DbService:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
-                    row = await connection.fetchrow('INSERT INTO video(video_name, section_id, video_hash, length) VALUES ($1, $2, $3, $4) RETURNING *',
-                                                    video.video_name, video.section_id, video.video_hash, video.length)
+                    row = await connection.fetchrow('INSERT INTO video(video_name, section_id, video_hash) VALUES ($1, $2, $3) RETURNING *',
+                                                    video.video_name, video.section_id, video.video_hash)
                     res = Video(**dict(row)) if row else None
                     info('Created video {}'.format(res))
                     return res
@@ -418,8 +420,8 @@ class DbService:
             if self.pool is None: raise ServiceError(NOT_INIT)
             async with self.pool.acquire() as connection:
                 with connection.query_logger(Logger()):
-                    row = await connection.fetchrow('UPDATE video SET video_name=$1, section_id=$2, video_hash=$3, length=$4 WHERE video_id=$5 RETURNING *',
-                                                    video.video_name, video.section_id, video.video_hash, video.length, video.video_id)
+                    row = await connection.fetchrow('UPDATE video SET video_name=$1, section_id=$2, video_hash=$3 WHERE video_id=$4 RETURNING *',
+                                                    video.video_name, video.section_id, video.video_hash, video.video_id)
                     res = Video(**dict(row)) if row else None
                     info('Updated video {}'.format(res))
                     return res

@@ -1,7 +1,7 @@
 from random import randbytes
 from hashlib import sha3_512
 from uuid import uuid4, UUID
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 from pydantic import AwareDatetime, BaseModel, EmailStr, PositiveInt, PositiveFloat, StrictBytes, StrictStr, UUID4
 
 
@@ -60,7 +60,6 @@ class Video(BaseModel):
     video_name: StrictStr = 'ZZDUMMY.MOV'
     section_id: UUID4 = UUID(int=0)
     video_hash: StrictStr = sha3_512(b'DUMMY').hexdigest()
-    length: timedelta = timedelta(microseconds=1)
 
 
 class Attachment(BaseModel):

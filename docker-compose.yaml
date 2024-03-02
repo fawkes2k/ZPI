@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  postgres: 
+    image: postgres:16.1-alpine3.19
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - /mnt/nfs/data:/var/lib/postgresql/data
+    ports:
+     - "5432:5432"
+    deploy:
+      resources:
+        limits: 
+          cpus: "4.00"
+          memory: 400M
+        reservations:
+          cpus: "3.00"
+          memory: 200M 
+  
+  backend:
+    image: fawkes2k/zpi
+    restart: unless-stopped
+    ports:
+     - "8000:80"
+    environment:
+     - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+     - SCHEMA=zpi
+     - PEPPER=uNV4HOk2UXgZdsqold23UV3M1NnkiuE7cc964ju8XMRfzzQ06Dc6X922kY9UAT55RPQjGLEjLu4ZczcEmxw8I4DAeCOiHWc3eAqsv4XD8hvngp8ZdbiF3DPiV5dcbqVohk1PRxinY6iLOz7i6njquAoVdD8BEeBYmL0fxPweFiVP9ZOVRL7XG>
+     - SECRET=n4M4jUdcp9DsDF2BgDm7tvsDFZ30W1PzE0gad8mj48DVSxEQsWon71fCwFmjrVscow4Da9uD5ksswD05Brm4AhiYEQZ79PtlCTgkI3PiTWQZ0XKS269Ji1igVv4SK83AZHqduAE9WU4uy11tycq3dK8kqsBeDfzGjTaY6n363g33vMcXl48pD>
+     - UPLOAD_FOLDER=/mnt/nfs/uploads
+     - MAX_IMAGE_SIZE_MB=10

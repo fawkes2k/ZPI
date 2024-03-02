@@ -20,8 +20,7 @@ def upgrade() -> None:
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     video_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.MOV' CHECK(video_name ~ '^.{1,255}$'),
     section_id UUID REFERENCES section(section_id) ON DELETE CASCADE NOT NULL,
-    video_hash TEXT NOT NULL UNIQUE CHECK(video_hash ~ '^[0-9a-f]{128}$'),
-    length INTERVAL NOT NULL);""")
+    video_hash TEXT NOT NULL UNIQUE CHECK(video_hash ~ '^[0-9a-f]{128}$'));""")
 
 
 def downgrade() -> None:
