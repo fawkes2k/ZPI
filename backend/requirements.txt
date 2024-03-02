@@ -9,4 +9,4 @@ SQLAlchemy~=2.0.27
 loguru~=0.7.2
 asgiref~=3.7.2
 Hypercorn~=0.16.0
-requests~=0.14.2
+
