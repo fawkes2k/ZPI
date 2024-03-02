@@ -22,7 +22,7 @@ def upgrade() -> None:
     file_name TEXT NOT NULL UNIQUE DEFAULT 'ZZDUMMY.BIN' CHECK(file_name ~ '^.{1,255}$'),
     file_hash TEXT NOT NULL UNIQUE CHECK(file_hash ~ '^[0-9a-f]{128}$'),
     video_id UUID REFERENCES video(video_id) ON DELETE CASCADE NOT NULL,
-    file_size INTEGER NOT NULL DEFAULT 1024 CHECK(file_size > 0));""")
+    file_size BIGINT NOT NULL DEFAULT 1024 CHECK(file_size > 0));""")
 
 
 def downgrade() -> None:

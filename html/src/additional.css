@@ -46,9 +46,9 @@
 
 .comment-box {
     border-radius: 5px;
-    -webkit-box-shadow: 0px 0px 5px -2px rgba(62, 62, 62, 1);
--moz-box-shadow: 0px 0px 5px -2px rgba(62, 62, 62, 1);
-box-shadow: 0px 0px 5px -2px rgba(62, 62, 62, 1);
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(66, 68, 90, 1);
+-moz-box-shadow: 0px 0px 5px 0px rgba(66, 68, 90, 1);
+box-shadow: 0px 0px 5px 0px rgba(66, 68, 90, 1);
 }
 .box-author {
     padding:5px 25px 10px 25px;
@@ -61,7 +61,34 @@ box-shadow: 0px 0px 5px -2px rgba(62, 62, 62, 1);
 .menu-box-title {
     cursor:pointer;
 }
-
+.select{
+    border:none;
+    border-radius:5px;
+    -webkit-box-shadow: 0px 0px 2px 0px rgba(66, 68, 90, 1);
+    -moz-box-shadow: 0px 0px 2px 0px rgba(66, 68, 90, 1);
+    box-shadow: 0px 0px 2px 0px rgba(66, 68, 90, 1);
+    padding: 0 10px;
+}
+.course-box {
+    padding:0;
+}
+.header{
+    height:150px;
+}
+.sub-header{
+    padding:15px;
+}
+.pagination-link{
+    border:none;
+    background-color: transparent !important;
+    color:#082a70;;
+    font-weight: 600;
+    font-size:1rem;
+}
+.pagination-link.is-current{
+    color:#fec208 !important;
+    text-decoration: underline;
+}
 
 @media screen and (max-width: 1410px) {
     .navbar-brand {

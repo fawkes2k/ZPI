@@ -35,3 +35,51 @@ body {
 .mt--5{
     margin-top:-1.5rem;
 }
+
+.is-super-large {
+    height:5rem;
+    width:5rem;
+}
+
+.complete-bar{
+    height:5px;
+    width:100%;
+    background-color:#d6d6d6;
+}
+
+.fill-bar{
+    height:5px;
+    background-color: #fec208;
+}
+
+.fill-bar-10{
+    width:10%;
+}
+.fill-bar-20{
+    width:20%;
+}
+.fill-bar-30{
+    width:30%;
+}
+.fill-bar-40{
+    width:40%;
+}
+.fill-bar-50{
+    width:50%;
+}
+.fill-bar-60{
+    width:60%;
+}
+.fill-bar-70{
+    width:70%;
+}
+.fill-bar-80{
+    width:80%;
+}
+.fill-bar-90{
+    width:90%;
+}
+.fill-bar-100{
+    width:100%;
+    background-color: #082a70 !important;
+}

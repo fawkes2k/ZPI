@@ -44,8 +44,8 @@ async def get_user(user_id):
         requester = await api.db.get_user(user_id=session.get('id'))
         if requester is None: return jsonify({'error': 'Not authorized to get user'}), 401
         user = await api.db.get_user(user_id)
-        viewable_user = ViewableUser(**user.model_dump()).model_dump_json()
-        return viewable_user, 200
+        viewable_user = ViewableUser(**user.model_dump())
+        return None if viewable_user is None else viewable_user.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 
@@ -136,7 +136,7 @@ async def get_course(course_id):
         requester = await api.db.get_user(user_id=session.get('id'))
         if requester is None: return jsonify({'error': 'Not authorized to get a course'}), 401
         course = await api.db.get_course(course_id)
-        return course.model_dump_json(), 200
+        return None if course is None else course.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 
@@ -237,7 +237,7 @@ async def get_review(review_id):
         requester = await api.db.get_user(user_id=session.get('id'))
         if requester is None: return jsonify({'error': 'Not authorized to get a review'}), 401
         review = await api.db.get_review(review_id)
-        return review.model_dump_json(), 200
+        return None if review is None else review.model_dump_json(), 200
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 
@@ -375,7 +375,7 @@ async def add_video(section_id):
         section = await api.db.get_section(section_id=section_id)
         if section is None: return jsonify({'error': 'Section does not exist'}), 404
         requester = await api.db.get_user(user_id=session.get('id'))
-        # if requester is None: return jsonify({'error': 'Not authorized to add videos'}), 401
+        if requester is None: return jsonify({'error': 'Not authorized to add videos'}), 401
         course = await api.db.get_course(course_id=section.course_id)
         if requester.user_id != course.author: return jsonify({'error': 'Not authorized to add videos to this course'}), 401
         if 'file' not in request.files: return jsonify({'error': 'No videos uploaded'}), 400

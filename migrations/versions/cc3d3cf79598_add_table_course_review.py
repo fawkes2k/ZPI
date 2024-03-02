@@ -21,7 +21,7 @@ def upgrade() -> None:
     creation_date TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     course_id UUID REFERENCES course(course_id) ON DELETE CASCADE NOT NULL,
     author UUID REFERENCES bc_user(user_id) ON DELETE CASCADE NOT NULL,
-    rating INT2 NOT NULL DEFAULT 1 CHECK(rating > 0 AND rating < 6),
+    rating NUMERIC(1,0) NOT NULL DEFAULT 1 CHECK(rating > 0),
     comment TEXT NOT NULL UNIQUE DEFAULT 'DUMMY',
     UNIQUE(course_id, author));""")
 
