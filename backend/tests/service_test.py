@@ -1,6 +1,6 @@
 from asyncio import run
-from backend.src.model import User, Course, Review, Section, Video, Attachment, VideoFeedback
-from backend.src.service import DbService
+from src.model import User, Course, Review, Section, Video, Attachment, VideoFeedback
+from src.service import DbService
 
 
 async def test():

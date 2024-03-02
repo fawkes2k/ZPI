@@ -1,14 +1,11 @@
-from asyncio.subprocess import create_subprocess_shell, PIPE
 from base64 import b64decode
+from flask import Blueprint, request, session, jsonify
+from datetime import datetime
 from os import getenv
 from random import randbytes
-
-from flask import Blueprint, request, session, jsonify
-from datetime import datetime, timedelta
 from service import DbService
 from model import User, ViewableUser, Course, Review, VideoFeedback, Video, Attachment
 from hashlib import sha3_512
-from wand.image import Image
 
 api = Blueprint('api', __name__)
 started = datetime.now()
